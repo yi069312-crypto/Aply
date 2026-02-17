@@ -1,0 +1,15 @@
+{
+  "name": "تطبيق يقين",
+  "short_name": "يقين",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#064e3b",
+  "theme_color": "#064e3b",
+  "icons": [
+    {
+      "src": "https://files.catbox.moe/mpzsy5.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
