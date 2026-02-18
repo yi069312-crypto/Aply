@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>يقين | تطبيقك الإسلامي الشامل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #064e3b;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --primary: #34d399;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background 0.3s ease;
+        }
+
+        header {
+            background: var(--primary); color: white;
+            padding: 15px 20px; display: flex;
+            justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+        #startScreen {
+            height: 100vh; width: 100%;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; position: fixed; top: 0; left: 0; z-index: 2000;
+        }
+
+        #startScreen h1 { font-size: 48px; margin-bottom: 10px; font-weight: 800; }
+        .enter-btn {
+            background: white; color: var(--primary);
+            padding: 15px 60px; border-radius: 50px;
+            font-size: 22px; font-weight: bold; border: none;
+            cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .page { display: none; animation: slideUp 0.4s ease-out; }
+        .page.active { display: block; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .menu-item {
+            background: var(--card); padding: 25px 15px;
+            border-radius: 20px; text-align: center; cursor: pointer;
+            box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05);
+        }
+        .menu-item span { font-weight: 700; font-size: 18px; }
+
+        .content-card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: var(--shadow); }
+        .quran-view { font-family: 'Amiri', serif; font-size: 26px; line-height: 2.2; text-align: justify; padding: 20px; max-height: 60vh; overflow-y: auto; }
+        .surah-select, .tasbeeh-select { width: 100%; padding: 15px; border-radius: 12px; font-family: 'Tajawal'; font-size: 16px; margin-bottom: 20px; border: 2px solid var(--secondary); background: var(--card); color: var(--text); }
+
+        .tasbeeh-container { text-align: center; padding: 20px 0; }
+        .circle {
+            width: 200px; height: 200px;
+            border: 10px solid var(--secondary); border-radius: 50%;
+            margin: 0 auto 20px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; cursor: pointer;
+            background: var(--card); box-shadow: var(--shadow);
+        }
+        .circle h2 { font-size: 50px; margin: 0; }
+
+        .btn-back { background: #64748b; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+        .btn-reset { background: #ef4444; color: white; border: none; padding: 12px 30px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .zikr-box { border-right: 4px solid var(--secondary); background: var(--bg); padding: 15px; margin-bottom: 10px; border-radius: 0 10px 10px 0; font-size: 17px; line-height: 1.6; position: relative;}
+        .zikr-box span { display: block; color: var(--secondary); font-weight: bold; font-size: 14px; margin-top: 5px; }
+
+        audio { width: 100%; margin-top: 15px; border-radius: 10px; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 12px; margin-bottom: 15px; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        
+        .prayer-time-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .todo-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; }
+        #ramadanTimer { background: #f59e0b; color: #fff; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div id="startScreen">
+    <h1>يَقِين</h1>
+    <p>أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ</p>
+    <button class="enter-btn" onclick="startApp()">دخول التطبيق</button>
+</div>
+
+<header id="mainHeader" style="display: none;">
+    <span style="font-weight: 800; font-size: 22px;">🌙 يَقِين</span>
+    <button onclick="toggleDark()" style="background:none; border:none; font-size: 24px; cursor:pointer;">🌓</button>
+</header>
+
+<div class="container" id="appContent" style="display: none;">
+
+    <div id="homePage" class="page active">
+        <div id="ramadanTimer" style="display:none;"></div>
+        <div class="content-card" style="background: var(--primary); color: white; text-align: center; cursor: pointer;" onclick="showTafsir()">
+            <p id="dailyVerse">"فَإِنَّ مَعَ الْعُسْرِ يُسْرًا"</p>
+            <small id="tafsirText" style="display:none; font-size: 14px; opacity: 0.9;"></small>
+        </div>
+
+        <div class="main-menu">
+            <div class="menu-item" onclick="showPage('quranPage')">📖 <span>القرآن</span></div>
+            <div class="menu-item" onclick="showPage('azkarMorning')">🌅 <span>أذكار الصباح</span></div>
+            <div class="menu-item" onclick="showPage('azkarEvening')">🌇 <span>أذكار المساء</span></div>
+            <div class="menu-item" onclick="showPage('tasbeehPage')">📿 <span>السبحة</span></div>
+            <div class="menu-item" onclick="showPage('duaPage')">🙏 <span>الأدعية</span></div>
+            <div class="menu-item" onclick="showPage('ramadanPage')">⭐ <span>أهداف رمضان</span></div>
+            <div class="menu-item" onclick="getPrayerTimes()">🕌 <span>مواقيت الصلاة</span></div>
+            <div class="menu-item" onclick="showPage('todoPage')">✅ <span>مهامي اليومية</span></div>
+            <div class="menu-item" onclick="showPage('hifzPage')" style="grid-column: span 2;">💡 <span>نصائح الحفظ</span></div>
+            <div class="menu-item" onclick="showPage('khatmaPage')">📖 <span>ختم القرآن</span></div>
+            <div class="menu-item" onclick="showComfortMessage()" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">✨ <span>رسالة لقلبك</span></div>
+            <div class="menu-item" onclick="showPage('faqPage')">🌙 <span>فقه الصيام</span></div>
+            <div class="menu-item" onclick="setupNotifications()" id="notiBtn">🔔 <span>تفعيل التنبيهات</span></div>
+            <div class="menu-item" onclick="showPage('hisnPage')">🛡️ <span>اذكار المسلم</span></div>
+            <div class="menu-item" onclick="showPage('qiblaPage')">🧭 <span>القبلة</span></div>
+
+            <div class="menu-item" id="radioBtn" onclick="toggleRadio()">
+                <span id="radioIcon">📻</span> <span id="radioStatus">إذاعة القرآن</span>
+            </div>
+
+            <div class="menu-item" onclick="showPage('namesPage')" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; grid-column: span 2; margin-top: 10px;">
+                ✨ <span>أسماء الله الحسنى</span>
+            </div>
+        </div> <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px dashed var(--secondary); width: 100%;">
+            <p style="font-family: 'Amiri', serif; font-size: 20px; color: var(--primary); margin: 0;">
+                ✨ نسألكم دعوة حلوة لأصحاب فكرة وتنفيذ التطبيق ✨
+            </p>
+            <p style="font-size: 14px; opacity: 0.7; margin-top: 5px;">عسى الله أن ينفعنا بها جميعاً</p>
+        </div>
+    </div> <div id="namesPage" class="page">
+        <button class="btn-back" onclick="stopNamesAudio(); showPage('homePage')">🔙 رجوع</button>
+        <div class="content-card" style="text-align: center;">
+            <h2 style="color: var(--primary); font-family: 'Amiri', serif; font-size: 28px;">✨ أسماء الله الحسنى ✨</h2>
+            
+            <div style="margin: 20px 0;">
+                <button id="playNamesBtn" onclick="toggleNamesAudio()" style="background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s;">
+                    🎵 تشغيل الأنشودة
+                </button>
+                <audio id="namesAudio" src="https://server11.mp3quran.net/s_gmd/001.mp3"></audio>
+            </div>
+
+            <div id="namesGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px;">
+                </div>
+        </div>
+    </div>
+
+    <div id="azkarMorning" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <h2 style="text-align: center;">🌅 أذكار الصباح</h2>
+        <div class="content-card">
+            <div class="zikr-box">اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ. <span>(مرة واحدة)</span></div>
+            <div class="zikr-box">
+                <b>سورة الإخلاص:</b> قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ ﴿٤﴾
+                <br><br>
+                <b>سورة الفلق:</b> قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴿١﴾ مِن شَرِّ مَا خَلَقَ ﴿٢﴾ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ﴿٣﴾ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ﴿٤﴾ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ ﴿٥﴾
+                <br><br>
+                <b>سورة الناس:</b> قُلْ أَعُوذُ بِرَبِّ النَّاسِ ﴿١﴾ مَلِكِ النَّاسِ ﴿٢﴾ إِلَٰهِ النَّاسِ ﴿٣﴾ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ﴿٤﴾ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾
+                <span>(3 مرات)</span>
+            </div>
+            <div class="zikr-box">اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.</div>
+            <div class="zikr-box">اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت اعوذُ بك من شر ما صنعت ابوء لك بنعمتك على وابوء بذنبي فاغفر لي ف انه لا يغفر الذنوب الا انت. <span>(مرة واحدة)</span></div>
+            <div class="zikr-box">بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم. <span>(3 مرات)</span></div>
+            <div class="zikr-box">رضيت بالله رباً، وبالإسلام ديناً، وبمحمد ﷺ نبياً. <span>(3 مرات)</span></div>
+            <div class="zikr-box">لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. <span>(100 مرة)</span></div>
+            <div class="zikr-box">أستغفر الله وأتوب إليه. <span>(100 مرة)</span></div>
+            <div class="zikr-box">اللهم صل وسلم على نبينا محمد. <span>(10 مرات)</span></div>
+            <div class="zikr-box">اللهم إني أسألك العفو والعافية في الدنيا والآخرة...</div>
+        </div>
+    </div>
+
+    <div id="azkarEvening" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <h2 style="text-align: center;">🌇 أذكار المساء</h2>
+        <div class="content-card">
+            <div class="zikr-box">اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ. <span>(مرة واحدة)</span></div>
+            <div class="zikr-box">
+                <b>سورة الإخلاص:</b> قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ ﴿٤﴾
+                <br><br>
+                <b>سورة الفلق:</b> قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴿١﴾ مِن شَرِّ مَا خَلَقَ ﴿٢﴾ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ﴿٣﴾ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ﴿٤﴾ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ ﴿٥﴾
+                <br><br>
+                <b>سورة الناس:</b> قُلْ أَعُوذُ بِرَبِّ النَّاسِ ﴿١﴾ مَلِكِ النَّاسِ ﴿٢﴾ إِلَٰهِ النَّاسِ ﴿٣﴾ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ﴿٤﴾ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾
+                <span>(3 مرات)</span>
+            </div>
+            <div class="zikr-box">اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير.</div>
+            <div class="zikr-box">اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت اعوذُ بك من شر ما صنعت ابوء لك بنعمتك على وابوء بذنبي فاغفر لي ف انه لا يغفر الذنوب الا انت. <span>(مرة واحدة)</span></div>
+            <div class="zikr-box">بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم. <span>(3 مرات)</span></div>
+            <div class="zikr-box">رضيت بالله رباً، وبالإسلام ديناً، وبمحمد ﷺ نبياً. <span>(3 مرات)</span></div>
+            <div class="zikr-box">أمسينا وأمسى الملك لله والحمد لله، لا إله إلا الله وحده لا شريك له...</div>
+            <div class="zikr-box">أعوذ بكلمات الله التامات من شر ما خلق. <span>(3 مرات)</span></div>
+            <div class="zikr-box">أستغفر الله وأتوب إليه. <span>(100 مرة)</span></div>
+            <div class="zikr-box">اللهم صل وسلم على نبينا محمد. <span>(10 مرات)</span></div>
+        </div>
+    </div>
+
+    <div id="duaPage" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <h2 style="text-align: center;">🙏 أدعية مشهورة</h2>
+        <div class="content-card">
+            <div class="zikr-box"><b>دعاء الهم والحزن:</b> "اللَّهُمَّ إني أعوذ بك من الهم والحزن، وأعوذ بك من العجز والكسل، وأعوذ بك من الجبن والبخل، وأعوذ بك من غلبة الدين وقهر الرجال."</div>
+            <div class="zikr-box"><b>دعاء الصباح والمساء:</b> "أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير."</div>
+            <div class="zikr-box"><b>دعاء قبل النوم:</b> "باسمك ربي وضعت جنبي، وبك أرفعته، فإن أمسكت نفسي فارحمها، وإن أرسلتها فاحفظها بما تحفظ به عبادك الصالحين."</div>
+            <div class="zikr-box"><b>دعاء الحاجة:</b> "لا إله إلا الله الحليم الكريم، سبحان الله رب العرش العظيم، الحمد لله رب العالمين، أسألك بكل اسم هو لك سميت به نفسك، أو أنزلته في كتابك، أو علمته أحدًا من خلقك، أو استأثرت به في علم الغيب عندك، أن تجعل القرآن ربيع قلبي، ونور صدري، وجلاء حزني، وذهاب همي."</div>
+        </div>
+    </div>
+
+    <div id="khatmaPage" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <h2 style="text-align: center;">📅 جدول ختم القرآن</h2>
+        
+        <div class="content-card">
+            <label>اختار عدد الختمات في الشهر:</label>
+            <select id="khatmaSelect" class="tasbeeh-select" onchange="generateKhatma()">
+                <option value="1">ختمة واحدة (4 صفحات كل صلاة)</option>
+                <option value="2">ختمتان (8 صفحات كل صلاة)</option>
+                <option value="3">3 ختمات (12 صفحة كل صلاة)</option>
+                <option value="4">4 ختمات (16 صفحة كل صلاة)</option>
+                <option value="5">5 ختمات (20 صفحة كل صلاة)</option>
+                <option value="10">10 ختمات (36 صفحة كل صلاة)</option>
+            </select>
+        </div>
+
+        <div id="khatmaResult">
+            </div>
+    </div>
+
+    <div id="quranPage" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <select id="surahSelect" class="surah-select" onchange="getSurahData()">
+            <option value="">اختر السورة...</option>
+        </select>
+        <div id="audioContainer" class="content-card" style="display:none; text-align:center;">
+            <span id="audioTitle" style="font-weight:bold; display:block; margin-bottom:10px;"></span>
+            <audio id="surahAudio" controls><source src="" type="audio/mpeg"></audio>
+        </div>
+        <div id="quranBox" class="content-card quran-view">اختر سورة لتبدأ القراءة والاستماع...</div>
+    </div>
+
+    <div id="ramadanPage" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <h3 style="text-align: center;">🎯 أهداف رمضان (دورات لا تفوتك)</h3>
+        
+        <div class="content-card">
+            <h4>1- السيرة النبوية (أحمد عامر)</h4>
+            <p style="font-size: 14px;">هتغيرك بجد وتتمنى متخلصش وكلنا عارفين أسلوبه المتميز.</p>
+            <div class="video-container"><iframe src="https://www.youtube.com/embed/videoseries?list=PLATApN30c4aLXpHzO1GkEb9H0CeXaJFy9"></iframe></div>
+        </div>
+
+        <div class="content-card">
+            <h4>2- المعارك الكبرى (سمير مصطفى)</h4>
+            <p style="font-size: 14px;">ما يخلصش رمضان إلا وأنت مخلص سلسلة المعارك الكبرى.</p>
+            <div class="video-container"><iframe src="https://www.youtube.com/embed/videoseries?list=PL09AC5B8EC7B3803A"></iframe></div>
+        </div>
+
+        <div class="content-card">
+            <h4>3- ختمة تعارف (حازم شومان)</h4>
+            <p style="font-size: 14px;">هتعيش مع القرآن حرفياً، بتعرفك حاجات كتير عن السور والتدبر.</p>
+            <div class="video-container"><iframe src="https://www.youtube.com/embed/videoseries?list=PLVPp4tYPys9MtkoERFPfepEll78gK5oM8"></iframe></div>
+        </div>
+
+        <div class="content-card">
+            <h4>📝 أهدافي الخاصة</h4>
+            <textarea id="myGoals" style="width:100%; height:80px; padding:10px; border-radius:10px; border:1px solid #ddd;" placeholder="اكتب هنا ما تريد تحقيقه..."></textarea>
+            <button onclick="saveGoals()" style="margin-top:10px; width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:10px;">حفظ الأهداف</button>
+        </div>
+    </div>
+
+    <div id="tasbeehPage" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <div class="tasbeeh-container">
+            <select id="tasbeehSelect" class="tasbeeh-select" onchange="changeZikr()">
+                <option value="سبحان الله">سبحان الله</option>
+                <option value="الحمد لله">الحمد لله</option>
+                <option value="الله أكبر">الله أكبر</option>
+                <option value="لا إله إلا الله">لا إله إلا الله</option>
+                <option value="استغفر الله">استغفر الله</option>
+                <option value="اللَّهُمَّ صلي علي محمد">اللَّهُمَّ صلي علي محمد</option>
+            </select>
+            <div class="circle" onclick="pressTasbeeh()"><h2 id="counter">0</h2><span id="tasbeehLabel">سبحان الله</span></div>
+            <button class="btn-reset" onclick="resetT()">تصفير</button>
+            <div id="tasbeehLog" class="content-card" style="margin-top: 20px; font-size: 16px; text-align: right;">
+                <h4 style="margin-top: 0; color: var(--secondary);">سجل التسبيح:</h4>
+                <div id="logItems"></div> </div>
+        </div>
+    </div>
+
+    <div id="prayerPage" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <h2>🕌 مواقيت الصلاة (القاهرة)</h2>
+        <div class="content-card" id="prayerTimesBox">جاري التحميل...</div>
+    </div>
+
+    <div id="todoPage" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <h2>✅ مهامي اليومية</h2>
+
+        <div class="content-card" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="todoInput" placeholder="أضف مهمة شخصية..." style="flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--secondary); font-family: 'Tajawal'; background: var(--card); color: var(--text);">
+            <button onclick="addTodo()" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">إضافة</button>
+        </div>
+
+        <div class="content-card">
+            <div id="todoList">
+                <div class="todo-item">
+                    <input type="checkbox" id="m1" onchange="saveTasks()"> 
+                    <label for="m1">الصلوات الخمس في وقتها</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="m2" onchange="saveTasks()"> 
+                    <label for="m2">أذكار الصباح والمساء</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="m3" onchange="saveTasks()"> 
+                    <label for="m3">ورد القرآن الكريم</label>
+                </div>
+                <div class="todo-item">
+                    <input type="checkbox" id="m4" onchange="saveTasks()"> 
+                    <label for="m4">صلاة القيام</label>
+                </div>
+                
+                <hr style="opacity: 0.1; margin: 15px 0;">
+                
+                <div id="userTasks"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="hifzPage" class="page">
+        <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+        <h2>💡 نصائح الحفظ</h2>
+        <div class="content-card">
+            <ul>
+                <li>كرر الآية 10 مرات قبل الانتقال لما بعدها.</li>
+                <li>استمع للسورة بصوت قارئك المفضل كثيراً.</li>
+                <li>احفظ مع صديق لتشجيع بعضكما البعض.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="faqPage" class="page">
+    <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+    <h2 style="text-align: center;">🌙 موسوعة فقه الصيام الشاملة</h2>
+    <div class="content-card" style="max-height: 75vh; overflow-y: auto; padding: 10px;">
+        
+        <h3 style="color: var(--primary); border-bottom: 2px solid; padding-bottom: 5px;">📍 قواعد عامة في المفطرات</h3>
+        <div class="zikr-box"><b>١. ضابط المفطرات:</b> كل ما دخل إلى الجوف (المعدة) عن طريق منفذ مفتوح (الفم، الأنف) وهو أكل أو شرب أو في معناهما.</div>
+        <div class="zikr-box"><b>٢. شروط الفطر:</b> لا يفطر الصائم إلا إذا فعل الشيء (عالماً) غير جاهل، و(ذاكراً) غير ناسٍ، و(مختاراً) غير مكره.</div>
+
+        <h3 style="color: var(--primary); border-bottom: 2px solid; padding-bottom: 5px;">🏥 الطب والعيادات</h3>
+        <div class="zikr-box"><b>٣. بخاخ الربو:</b> لا يفطر؛ لأنه غاز مضغوط يذهب للرئة ولا يصل منه للمعدة إلا قدر يسير جداً مغفور عنه.</div>
+        <div class="zikr-box"><b>٤. الأقراص تحت اللسان:</b> (لأزمات القلب) لا تفطر؛ لأنها تُمتص في الفم ولا ينزل منها شيء للجوف.</div>
+        <div class="zikr-box"><b>٥. منظار المعدة:</b> لا يفطر إلا إذا صاحبه وضع سوائل أو محاليل مغذية.</div>
+        <div class="zikr-box"><b>٦. قطرة الأذن أو غسولها:</b> لا تفطر إلا إذا كان ثقب الأذن يصل للحلق.</div>
+        <div class="zikr-box"><b>٧. قطرة العين:</b> لا تفطر مطلقاً؛ لأن العين ليست منفذاً للجوف.</div>
+        <div class="zikr-box"><b>٨. إبر الأنسولين (السكر):</b> لا تفطر.</div>
+        <div class="zikr-box"><b>٩. إبر العضل والوريد:</b> غير المغذية لا تفطر، أما المغذية (الجلوكوز) فتفطر.</div>
+        <div class="zikr-box"><b>١٠. التخدير (البنج):</b> الموضعي لا يفطر، الكلي إذا استغرق كل النهار يفطر.</div>
+        <div class="zikr-box"><b>١١. التحاميل (اللبوس):</b> لا تفطر؛ لأن الدبر ليس منفذاً للتغذية.</div>
+        <div class="zikr-box"><b>١٢. التبرع بالدم:</b> لا يفطر على الراجح، لكن يُكره إن كان يضعف الصائم.</div>
+
+        <h3 style="color: var(--primary); border-bottom: 2px solid; padding-bottom: 5px;">🦷 الفم والأنف</h3>
+        <div class="zikr-box"><b>١٣. غاز الأكسجين:</b> لا يفطر.</div>
+        <div class="zikr-box"><b>١٤. بخاخ الأنف:</b> يفطر إذا وصل للمعدة؛ لأن الأنف منفذ للجوف.</div>
+        <div class="zikr-box"><b>١٥. قلع الضرس:</b> لا يفطر، ويجب الحذر من بلع الدم.</div>
+        <div class="zikr-box"><b>١٦. السواك ومعجون الأسنان:</b> لا يفطران، بشرط الحذر الشديد من بلع المعجون.</div>
+        <div class="zikr-box"><b>١٧. بلع النخامة (البلغم):</b> لا يفطر إذا بلعها من حلقه، وتفطر إذا وصلت للفم ثم بلعها.</div>
+        <div class="zikr-box"><b>١٨. المضمضة والاستنشاق:</b> لا يفطران، ويُكره المبالغة فيهما للصائم.</div>
+
+        <h3 style="color: var(--primary); border-bottom: 2px solid; padding-bottom: 5px;">🤰 النساء والأسرة</h3>
+        <div class="zikr-box"><b>١٩. الحامل والمرضع:</b> يجوز لهما الفطر إذا خافتا على أنفسهما أو الجنين، وعليهما القضاء فقط.</div>
+        <div class="zikr-box"><b>٢٠. تذوق الطعام:</b> يجوز للمرأة تذوق الطعام للحاجة بطرف لسانها مع بصقه ولا تفطر.</div>
+        <div class="zikr-box"><b>٢١. دم الحيض والنفاس:</b> يفطر بمجرد خروجه ولو قبل المغرب بلحظة.</div>
+
+        <h3 style="color: var(--primary); border-bottom: 2px solid; padding-bottom: 5px;">✈️ السفر والأعذار</h3>
+        <div class="zikr-box"><b>٢٢. السفر المبيح للفطر:</b> هو السفر الطويل (حوالي ٨٠ كم فأكثر).</div>
+        <div class="zikr-box"><b>٢٣. متى يفطر المسافر؟</b> بعد مغادرة بنيان مدينته تماماً، ولا يجوز الفطر وهو لا يزال في بيته.</div>
+        <div class="zikr-box"><b>٢٤. من أفطر ناسياً:</b> يتم صومه ولا قضاء عليه ولا كفارة.</div>
+        <div class="zikr-box"><b>٢٥. الجنابة:</b> من أصبح جنباً فصومه صحيح ويغتسل ويصلي.</div>
+
+        <h3 style="color: var(--primary); border-bottom: 2px solid; padding-bottom: 5px;">🧼 المعاصرة والمفارقات</h3>
+        <div class="zikr-box"><b>٢٦. غسيل الكلى:</b> يفطر (سواء البريتوني أو الدموي) لوجود مواد مغذية.</div>
+        <div class="zikr-box"><b>٢٧. العطر والبخور:</b> العطر لا يفطر، البخور استنشاقه عمداً يفطر (لأن له دخان يتكاثف).</div>
+        <div class="zikr-box"><b>٢٨. لصقات النيكوتين:</b> لا تفطر؛ لأنها تُمتص عبر الجلد وليست أكلاً.</div>
+        <div class="zikr-box"><b>٢٩. بلع الريق:</b> لا يفطر أبداً.</div>
+        <div class="zikr-box"><b>٣٠. القيء:</b> من استقاء عمداً أفطر، ومن غلبه القيء فلا يفطر.</div>
+
+        <p style="text-align: center; color: #64748b; font-size: 13px; margin-top: 20px;">
+            المصدر: دورة فقه الصيام - تلخيص المسائل الفقهية المعاصرة
+        </p>
+    </div>
+</div>
+
+<div id="comfortModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; align-items:center; justify-content:center;">
+    <div class="content-card" style="width:85%; max-width:400px; text-align:center; padding:30px;">
+        <h3 style="color:var(--accent);">✨ رسالة لقلبك</h3>
+        <p id="comfortText" style="font-family:'Amiri', serif; font-size:22px; line-height:1.6;"></p>
+        <button onclick="closeComfort()" style="background:var(--primary); color:white; border:none; padding:10px 30px; border-radius:10px;">الحمد لله</button>
+    </div>
+</div>
+
+<div id="hisnPage" class="page">
+    <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+    <h2 style="text-align: center;">🛡️ حصن المسلم</h2>
+    
+    <div class="content-card" style="margin-bottom: 10px; padding: 10px;">
+        <input type="text" id="hisnSearch" placeholder="ابحث عن ذكر (سفر، نوم، لبس...)" onkeyup="searchHisn()" 
+               style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--primary); font-family: 'Tajawal';">
+    </div>
+
+    <div id="hisnContainer" class="content-card" style="max-height: 70vh; overflow-y: auto;">
+        </div>
+</div>
+
+<div id="qiblaPage" class="page">
+    <button class="btn-back" onclick="showPage('homePage')">🔙 رجوع</button>
+    <h2 style="text-align: center;">🧭 اتجاه القبلة</h2>
+    <div class="content-card" style="text-align: center;">
+        <div id="qiblaCompass" style="width: 200px; height: 200px; border: 5px solid var(--primary); border-radius: 50%; margin: 20px auto; position: relative; transition: transform 0.5s ease;">
+            <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 30px;">🕋</div>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 2px; height: 80px; background: red;"></div>
+        </div>
+        <p id="qiblaText">جاري تحديد موقعك...</p>
+        <small>تأكد من تفعيل الـ GPS ووضع الهاتف بشكل مسطح</small>
+    </div>
+</div>
+<div id="namesPage" class="page">
+    <button class="btn-back" onclick="stopNamesAudio(); showPage('homePage')">🔙 رجوع</button>
+    
+    <div class="content-card" style="text-align: center; background: #fffbeb;">
+        <h2 style="color: #b45309; margin-bottom: 10px;">✨ أسماء الله الحسنى ✨</h2>
+        <button id="playNamesBtn" onclick="toggleNamesAudio()" style="background: #b45309; color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; font-family: 'Tajawal'; font-size: 16px;">
+            🎵 تشغيل الأنشودة
+        </button>
+        <audio id="namesAudio" src="https://server11.mp3quran.net/s_gmd/001.mp3"></audio> </div>
+
+    <div class="content-card" id="namesGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; font-family: 'Amiri', serif; font-size: 20px;">
+        </div>
+</div>
+
+<audio id="quranRadio" src="https://smart.mp3quran.net/radio/radio/800/128/radio.mp3"></audio>
+
+<script>
+    function startApp() {
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('mainHeader').style.display = 'flex';
+        document.getElementById('appContent').style.display = 'block';
+        loadSurahNames();
+        updateRamadanTimer();
+        loadMyGoals();
+        loadDailyVerse();
+    }
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    async function loadSurahNames() {
+        const select = document.getElementById('surahSelect');
+        try {
+            const r = await fetch('https://api.alquran.cloud/v1/surah');
+            const d = await r.json();
+            d.data.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.number; opt.text = s.number + ". " + s.name;
+                select.add(opt);
+            });
+        } catch(e) {}
+    }
+
+    async function getSurahData() {
+        const val = document.getElementById('surahSelect').value;
+        const select = document.getElementById('surahSelect');
+        if(!val) return;
+        const quranBox = document.getElementById('quranBox');
+        const audioContainer = document.getElementById('audioContainer');
+        const surahAudio = document.getElementById('surahAudio');
+        quranBox.innerText = "جاري التحميل...";
+        audioContainer.style.display = "block";
+        document.getElementById('audioTitle').innerText = "استماع إلى: " + select.options[select.selectedIndex].text;
+        surahAudio.src = `https://server8.mp3quran.net/afs/${val.padStart(3, '0')}.mp3`;
+
+        const localData = localStorage.getItem('surah_' + val);
+        if (localData) quranBox.innerHTML = localData + "<br><p style='color:green; font-size:12px;'>✓ تعمل بدون إنترنت</p>";
+        
+        try {
+            const r = await fetch(`https://api.alquran.cloud/v1/surah/${val}`);
+            const d = await r.json();
+            let txt = "";
+            d.data.ayahs.forEach(a => txt += a.text + ` <span style="color:var(--secondary)">﴿${a.numberInSurah}﴾</span> `);
+            localStorage.setItem('surah_' + val, txt);
+            quranBox.innerHTML = txt;
+        } catch(e) { if(!localData) quranBox.innerText = "تحتاج إنترنت لأول مرة."; }
+    }
+
+    function updateRamadanTimer() {
+        const diff = new Date("March 1, 2025").getTime() - new Date().getTime();
+        if (diff > 0) {
+            document.getElementById('ramadanTimer').innerText = `⏳ متبقي على رمضان: ${Math.floor(diff/(1000*60*60*24))} يوم`;
+            document.getElementById('ramadanTimer').style.display = "block";
+        }
+    }
+
+    function loadDailyVerse() {
+        const verses = ["فَإِنَّ مَعَ الْعُسْرِ يُسْرًا", "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ"];
+        document.getElementById('dailyVerse').innerText = verses[Math.floor(Math.random()*verses.length)];
+    }
+
+    function showTafsir() {
+        const t = document.getElementById('tafsirText');
+        t.innerText = "تفسير: الله يعدك باليسر والسكينة في ذكره.";
+        t.style.display = t.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function getPrayerTimes() {
+        showPage('prayerPage');
+        const box = document.getElementById('prayerTimesBox');
+        try {
+            const r = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt&method=5');
+            const d = await r.json();
+            const t = d.data.timings;
+            box.innerHTML = `<div class="prayer-time-row"><span>الفجر</span><b>${t.Fajr}</b></div><div class="prayer-time-row"><span>الظهر</span><b>${t.Dhuhr}</b></div><div class="prayer-time-row"><span>العصر</span><b>${t.Asr}</b></div><div class="prayer-time-row"><span>المغرب</span><b>${t.Maghrib}</b></div><div class="prayer-time-row"><span>العشاء</span><b>${t.Isha}</b></div>`;
+        } catch(e) { box.innerText = "تعذر التحميل."; }
+    }
+    // جوه وظيفة جلب المواعيد (بعد ما تجيب الـ data)
+         localStorage.setItem('prayerTimings', JSON.stringify(data.data.timings));
+
+    let count = localStorage.getItem('count') || 0;
+    document.getElementById('counter').innerText = count;
+    function pressTasbeeh() {
+    count++;
+    document.getElementById('counter').innerText = count;
+    localStorage.setItem('count', count);
+    
+    // إضافة الاهتزاز
+    if (navigator.vibrate) {
+        if (count % 33 === 0) {
+            // هزة قوية ومزدوجة عند الرقم 33
+            navigator.vibrate([100, 50, 100]); 
+        } else {
+            // هزة خفيفة جداً مع كل ضغطة لتحاكي السبحة الحقيقية
+            navigator.vibrate(30); 
+        }
+    }
+}
+    // وظيفة التصفير اليدوي (زرار تصفير)
+    function resetT() { 
+        count = 0; 
+        document.getElementById('counter').innerText = 0; 
+        localStorage.setItem('count', 0); 
+    }
+
+    // وظيفة تغيير الذكر (التصفير التلقائي مع الأرشفة في السجل)
+    function changeZikr() {
+        const label = document.getElementById('tasbeehLabel');
+        const counterEl = document.getElementById('counter');
+        const logItems = document.getElementById('logItems');
+        const select = document.getElementById('tasbeehSelect');
+        
+        // 1. لو العداد فيه رقم، انقله للسجل تحت قبل ما يضيع
+        if (count > 0) {
+            const newItem = document.createElement('div');
+            newItem.className = 'zikr-box';
+            newItem.style.padding = '10px';
+            newItem.style.marginBottom = '8px';
+            newItem.style.fontSize = '15px';
+            // هنا بنعرض اسم الذكر القديم والعدد اللي وصلتله
+            newItem.innerHTML = `${label.innerText}: <span style="float:left;">${count} مرة</span>`;
+            
+            // يضيف السجل الجديد في أول القائمة
+            if (logItems) {
+                logItems.insertBefore(newItem, logItems.firstChild);
+            }
+        }
+
+        // 2. صفر العداد عشان تبدأ الذكر الجديد من الصفر
+        count = 0;
+        counterEl.innerText = 0;
+        localStorage.setItem('count', 0);
+
+        // 3. حدث النص المكتوب جوه الدائرة ليكون الذكر الجديد
+        label.innerText = select.value;
+    }
+
+    function toggleDark() { document.body.classList.toggle('dark-mode'); }
+    function saveGoals() { localStorage.setItem('userGoals', document.getElementById('myGoals').value); alert("تم الحفظ!"); }
+    function loadMyGoals() { document.getElementById('myGoals').value = localStorage.getItem('userGoals') || ""; }
+    // 1. وظيفة إضافة مهمة جديدة مع زرار مسح
+    function addTodo() {
+        const input = document.getElementById('todoInput');
+        const taskText = input.value.trim();
+        
+        if (taskText === "") return;
+
+        const taskList = document.getElementById('userTasks');
+        const taskDiv = document.createElement('div');
+        taskDiv.className = 'todo-item';
+        taskDiv.style.display = 'flex';
+        taskDiv.style.alignItems = 'center';
+        taskDiv.style.gap = '10px';
+        
+        // الكود ده بيضيف المهمة ومعاها زرار الحذف (X) باللون الأحمر
+        taskDiv.innerHTML = `
+            <input type="checkbox" onchange="saveTasks()"> 
+            <label style="flex:1">${taskText}</label>
+            <span onclick="this.parentElement.remove(); saveTasks();" style="color:red; cursor:pointer; font-weight:bold; padding:0 10px;">✕</span>
+        `;
+        
+        taskList.appendChild(taskDiv);
+        input.value = "";
+        saveTasks();
+    }
+
+    // 2. وظيفة حفظ المهام وحالة (الصح) في ذاكرة الموبايل
+    function saveTasks() {
+        const userTasksCont = document.getElementById('userTasks');
+        // قبل ما نحفظ، بنعلم في الكود مين اللي واخد "صح" ومين لأ
+        const checkboxes = userTasksCont.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(box => {
+            if (box.checked) box.setAttribute('checked', 'checked');
+            else box.removeAttribute('checked');
+        });
+        
+        localStorage.setItem('myCustomTasks', userTasksCont.innerHTML);
+    }
+
+    // 3. وظيفة التحميل والتصفير اليومي (أهم جزء)
+    function loadTasks() {
+        const savedTasks = localStorage.getItem('myCustomTasks');
+        const lastDate = localStorage.getItem('lastUpdateDate');
+        const today = new Date().toLocaleDateString();
+
+        // تحميل المهام اللي المستخدم ضافها قبل كدة
+        if (savedTasks) {
+            document.getElementById('userTasks').innerHTML = savedTasks;
+        }
+
+        // لو التاريخ اتغير (بقينا في يوم جديد)
+        if (lastDate !== today) {
+            // شيل علامات الصح من المهام الأساسية والجديدة
+            const allCheckboxes = document.querySelectorAll('#todoList input[type="checkbox"]');
+            allCheckboxes.forEach(box => {
+                box.checked = false;
+                box.removeAttribute('checked');
+            });
+            
+            // حدث التاريخ لليوم الجديد واحفظ الحالة وهي فاضية
+            localStorage.setItem('lastUpdateDate', today);
+            saveTasks();
+        }
+    }
+
+    // 4. تحديث وظيفة البداية عشان تشغل التحميل أول ما يفتح
+    // (تأكد إن الوظيفة دي هي اللي بتناديها في زرار دخول التطبيق)
+    const originalStartApp = startApp;
+    startApp = function() {
+        if (typeof originalStartApp === 'function') originalStartApp();
+        loadTasks();
+    }
+    function generateKhatma() {
+        const khatmaCount = document.getElementById('khatmaSelect').value;
+        const resultDiv = document.getElementById('khatmaResult');
+        
+        // حساب عدد الصفحات بناءً على اختيار المستخدم (زي الصورة بالظبط)
+        let pages = khatmaCount * 4; 
+        if(khatmaCount == 10) pages = 36; // استثناء للـ 10 ختمات حسب الصورة
+
+        const times = [
+            { name: "الفجر", icon: "🌅" },
+            { name: "الظهر", icon: "☀️" },
+            { name: "العصر", icon: "🌇" },
+            { name: "المغرب", icon: "🌙" },
+            { name: "العشاء", icon: "🌌" }
+        ];
+
+        let html = `<div class="content-card" style="background: var(--primary); color: white; text-align: center; margin-bottom: 10px;">
+                        <strong>نظام الـ ${khatmaCount} ختمات:</strong> اقرأ ${pages} صفحات بعد كل صلاة
+                    </div>`;
+
+        times.forEach(time => {
+            html += `
+                <div class="zikr-box" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+                    <div>
+                        <strong>${time.icon} صلاة ${time.name}</strong>
+                        <p style="margin: 5px 0 0 0; font-size: 15px; opacity: 0.8;">ورد هذه الصلاة</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <span style="display: block; font-size: 22px; margin: 0;">${pages}</span>
+                        <small>صفحات</small>
+                    </div>
+                </div>`;
+        });
+
+        resultDiv.innerHTML = html;
+    }
+
+    // عشان الجدول يظهر أول ما يفتح الصفحة لأول مرة
+    window.addEventListener('load', () => {
+        if(document.getElementById('khatmaSelect')) generateKhatma();
+    });
+    // 1. برمجة رسائل الطمأنينة
+const messages = [
+    "لَا تَخَفْ وَلَا تَحْزَنْ ۖ إِنَّا مُنَجُّوكَ",
+    "لَا تَدْرِي لَعَلَّ اللَّهَ يُحْدِثُ بَعْدَ ذَٰلِكَ أَمْرًا",
+    "وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ",
+    "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
+    "إِنَّ مَعَ الْعُسْرِ يُسْرًا",
+    "وَاصْبِرْ لِحُكْمِ رَبِّكَ فَإِنَّكَ بِأَعْيُنِنَا"
+];
+
+function showComfortMessage() {
+    const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+    document.getElementById('comfortText').innerText = "﴿ " + randomMsg + " ﴾";
+    document.getElementById('comfortModal').style.display = 'flex';
+}
+
+function closeComfort() {
+    document.getElementById('comfortModal').style.display = 'none';
+}
+
+// 2. برمجة التنبيهات الذكية
+function setupNotifications() {
+    if (!("Notification" in window)) {
+        alert("متصفحك لا يدعم التنبيهات");
+        return;
+    }
+    function setupNotifications() {
+    // ... الكود القديم بتاع طلب الإذن ...
+    if (permission === "granted") {
+        startPrayerWatch(); // ضيف السطر ده هنا عشان يبدأ يراقب الوقت
+    }
+}
+
+    Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+            document.getElementById('notiBtn').innerHTML = "✅ <span>التنبيهات تعمل</span>";
+            alert("سيصلك تنبيه بالذكر كل ساعة إن شاء الله");
+            
+            // تنبيه تجريبي بعد 5 ثواني
+            setTimeout(() => {
+                new Notification("يقين", { body: "صلِّ على النبي ﷺ", icon: "logo.png" });
+            }, 5000);
+            
+            // تكرار تنبيه كل ساعة (3600000 مللي ثانية)
+            setInterval(() => {
+                const athkar = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر"];
+                const randomThikr = athkar[Math.floor(Math.random() * athkar.length)];
+                new Notification("ذكر الله", { body: randomThikr });
+            }, 3600000);
+        }
+    });
+}
+const hisnAthkar = [
+    { title: "دعاء السفر", text: "الله أكبر، الله أكبر، الله أكبر، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ..." },
+    { title: "دعاء لبس الثوب", text: "الحمد لله الذي كساني هذا الثوب ورزقنيه من غير حول مني ولا قوة." },
+    { title: "ما يقال عند الغضب", text: "أعوذ بالله من الشيطان الرجيم." },
+    { title: "دعاء دخول الخلاء", text: "اللهم إني أعوذ بك من الخبث والخبائث." },
+    { title: "دعاء الخروج من المنزل", text: "باسم الله، توكلت على الله، ولا حول ولا قوة إلا بالله." },
+    { title: "دعاء الكرب", text: "لا إله إلا الله العظيم الحليم، لا إله إلا الله رب العرش العظيم..." },
+    { title: "دعاء الاستخارة", text: "اللهم إني أستخيرك بعلمك وأستقدرك بقدرتك..." }
+];
+
+function displayHisn(filter = "") {
+    const container = document.getElementById('hisnContainer');
+    container.innerHTML = "";
+    
+    const filtered = hisnAthkar.filter(item => item.title.includes(filter));
+    
+    filtered.forEach(item => {
+        const box = document.createElement('div');
+        box.className = 'zikr-box';
+        box.innerHTML = `<b>${item.title}</b><br><p style="margin-top:10px; font-size:16px;">${item.text}</p>`;
+        container.appendChild(box);
+    });
+}
+
+function searchHisn() {
+    const val = document.getElementById('hisnSearch').value;
+    displayHisn(val);
+}
+
+// تشغيل العرض الأول عند فتح الصفحة
+displayHisn();
+// 1. وظيفة بتراقب الوقت كل دقيقة عشان لو جه موعد صلاة تبعت تنبيه
+function startPrayerWatch() {
+    setInterval(() => {
+        const now = new Date();
+        // تنسيق الوقت الحالي ليكون مثلاً (05:20)
+        const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        
+        checkSalatTime(currentTime);
+    }, 60000); // بتفحص كل دقيقة (60 ألف مللي ثانية)
+}
+
+// 2. وظيفة المقارنة بين الوقت الحالي ومواعيد الصلاة
+function checkSalatTime(currentTime) {
+    const prayers = {
+        "Fajr": "الفجر",
+        "Dhuhr": "الظهر",
+        "Asr": "العصر",
+        "Maghrib": "المغرب",
+        "Isha": "العشاء"
+    };
+    
+    // بنجيب المواعيد اللي اتخزنت من الـ API
+    const savedTimings = JSON.parse(localStorage.getItem('prayerTimings'));
+    
+    if (savedTimings) {
+        for (let key in prayers) {
+            // لو وقت الصلاة في الجهاز مطابق للوقت الحالي
+            if (savedTimings[key] === currentTime) {
+                new Notification("حي على الصلاة", {
+                    body: `حان الآن موعد أذان ${prayers[key]} حسب توقيتك المحلي`,
+                    icon: "logo.png"
+                });
+            }
+        }
+    }
+}
+function toggleRadio() {
+    const radio = document.getElementById('quranRadio');
+    const status = document.getElementById('radioStatus');
+    
+    if (radio.paused) {
+        // لو الإذاعة واقفة.. شغلها
+        radio.play().catch(e => console.log("خطأ في التشغيل: ", e));
+        status.innerText = "⏸️ إيقاف الإذاعة";
+        status.style.color = "#ef4444"; // يقلب أحمر وهو شغال
+    } else {
+        // لو الإذاعة شغالة.. وقفها تماماً
+        radio.pause();
+        // السطر اللي جاي ده هو "السر" عشان يقطع الاتصال بالسيرفر ويوقف الصوت فوراً
+        radio.src = radio.src; 
+        status.innerText = "📻 إذاعة القرآن";
+        status.style.color = "inherit";
+    }
+}
+// وظيفة القبلة
+function getQibla() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // معادلة حساب اتجاه القبلة بالنسبة للشمال (مكة: 21.4225° N, 39.8262° E)
+            const makkahLat = 21.4225;
+            const makkahLng = 39.8262;
+            
+            const y = Math.sin(Math.toRadians(makkahLng - lng));
+            const x = Math.cos(Math.toRadians(lat)) * Math.sin(Math.toRadians(makkahLat)) -
+                      Math.sin(Math.toRadians(lat)) * Math.cos(Math.toRadians(makkahLat)) * Math.cos(Math.toRadians(makkahLng - lng));
+            
+            let qiblaDirection = Math.toDegrees(Math.atan2(y, x));
+            qiblaDirection = (qiblaDirection + 360) % 360;
+
+            document.getElementById('qiblaCompass').style.transform = `rotate(${-qiblaDirection}deg)`;
+            document.getElementById('qiblaText').innerText = "تم تحديد القبلة بنجاح";
+        }, () => {
+            document.getElementById('qiblaText').innerText = "يرجى تفعيل الوصول للموقع";
+        });
+    }
+}
+
+// تحويل الزوايا
+Math.toRadians = function(degrees) { return degrees * Math.PI / 180; };
+Math.toDegrees = function(radians) { return radians * 180 / Math.PI; };
+
+// تحديث وظيفة التنقل لتشغيل القبلة عند فتح صفحتها
+const oldShowPage = showPage;
+showPage = function(pageId) {
+    oldShowPage(pageId);
+    if(pageId === 'qiblaPage') getQibla();
+}
+// قائمة الأسماء الـ 99
+const allahNames = ["الرحمن", "الرحيم", "الملك", "القدوس", "السلام", "المؤمن", "المهيمن", "العزيز", "الجبار", "المتكبر", "الخالق", "البارئ", "المصور", "الغفار", "القهار", "الوهاب", "الرزاق", "الفتاح", "العليم", "القابض", "الباسط", "الخافض", "الرافع", "المعز", "المذل", "السميع", "البصير", "الحكم", "العدل", "اللطيف", "الخبير", "الحليم", "العظيم", "الغفور", "الشكور", "العلي", "الكبير", "الحفيظ", "المقيت", "الحسيب", "الجليل", "الكريم", "الرقيب", "المجيب", "الواسع", "الحكيم", "الودود", "المجيد", "الباعث", "الشهيد", "الحق", "الوكيل", "القوي", "المتين", "الولي", "الحميد", "المحصي", "المبدئ", "المعيد", "المحيي", "المميت", "الحي", "القيوم", "الواجد", "الماجد", "الواحد", "الأحد", "الصمد", "القادر", "المقتدر", "المقدم", "المؤخر", "الأول", "الآخر", "الظاهر", "الباطن", "الوالي", "المتعالي", "البر", "التواب", "المنتقم", "العفو", "الرؤوف", "مالك الملك", "ذو الجلال والإكرام", "المقسط", "الجامع", "الغني", "المغني", "المانع", "الضار", "النافع", "النور", "الهادي", "البديع", "الباقي", "الوارث", "الرشيد", "الصبور"];
+
+function displayNames() {
+    const grid = document.getElementById('namesGrid');
+    if(grid) {
+        grid.innerHTML = allahNames.map(name => `
+            <div style="background: #fdf2f2; padding: 10px 5px; border-radius: 8px; font-size: 15px; font-weight: bold; border: 1px solid #fecaca; color: #991b1b; font-family: 'Amiri', serif;">${name}</div>
+        `).join('');
+    }
+}
+
+// وظائف الصوت لأسماء الله الحسنى
+function toggleNamesAudio() {
+    const audio = document.getElementById('namesAudio');
+    const btn = document.getElementById('playNamesBtn');
+    if (audio.paused) {
+        audio.play();
+        btn.innerText = "⏸️ إيقاف الأنشودة";
+        btn.style.background = "#ef4444";
+    } else {
+        audio.pause();
+        btn.innerText = "🎵 تشغيل الأنشودة";
+        btn.style.background = "var(--accent)";
+    }
+}
+
+function stopNamesAudio() {
+    const audio = document.getElementById('namesAudio');
+    audio.pause();
+    audio.currentTime = 0;
+}
+
+// استدعي وظيفة عرض الأسماء عند تشغيل التطبيق
+displayNames();
+</script>
+
+</body>
+</html>
